@@ -47,8 +47,8 @@ app.get('/qrcode', (req, res) => {
     res.send('QRCODE : MAKE YOUR PAYMENT');
 });
 
-app.post('criar-pix', (req, res) => {
-    res.send('QRCODE : MAKE YOUR PAYMENT');
+app.post('/criar-pix', (req, res) => {
+    res.send('Criando PIX');
 });
 
 app.get('/success', (req, res) => {
