@@ -2,53 +2,51 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mercadopago from 'mercadopago';
 import dotenv from 'dotenv';
+import { Payment, MercadoPagoConfig } from 'mercadopago';
 
 dotenv.config();
 const app = express();
 const PORT = 3000;
-
+const token = process.env.TOKEN_MERCADOPAGO;
 mercadopago.accessToken = process.env.TOKEN_MERCADOPAGO; // Substitua pelo seu token de acesso
 
-// mercadopago.configure({
-//     access_token: process.env.TOKEN_MERCADOPAGO, // Replace with your Mercado Pago Access Token
-// });
+
+
+const client = new MercadoPagoConfig({ accessToken: process.env.TOKEN_MERCADOPAGO });
+const payment = new Payment(client);
+
 
 // Middleware
 app.use(bodyParser.json());
 
 // Route to create a preference
-app.post('/create_preference', async (req, res) => {
-    const { items, payer } = req.body;
-
-    const preference = {
-        items,
-        payer,
-        back_urls: {
-            success: 'http://localhost:3000/success',
-            failure: 'http://localhost:3000/failure',
-            pending: 'http://localhost:3000/pending',
-        },
-        auto_return: 'approved',
-    };
-
-    try {
-        const response = await mercadopago.preferences.create(preference);
-        res.status(200).json({
-            id: response.body.id,
-            init_point: response.body.init_point,
-        });
-    } catch (error) {
-        console.error('Error creating preference:', error);
-        res.status(500).json({ error: 'Failed to create preference' });
-    }
-});
 
 app.get('/qrcode', (req, res) => {
     res.send('QRCODE : MAKE YOUR PAYMENT');
 });
 
 app.post('/criar-pix', (req, res) => {
+    
     res.send('Criando PIX');
+    console.log("token : ",token)
+    payment.create({
+        body: { 
+            transaction_amount: req.transaction_amount,
+            description: req.description,
+            payment_method_id: req.paymentMethodId,
+                payer: {
+                email: req.email,
+                identification: {
+            type: req.identificationType,
+            number: req.number
+        }}},
+        requestOptions: { idempotencyKey: '<SOME_UNIQUE_VALUE>' }
+    })
+    .then((result) => console.log(result))
+    .catch((error) => console.log(error));
+    console.log(req)
+    
+    
 });
 
 app.get('/success', (req, res) => {
