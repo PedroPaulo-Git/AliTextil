@@ -5,7 +5,7 @@ import TicketPix from './components/pagamentos/TicketPix'
 function App() {
  
   return (
-   <div className='text-yellow-700'>
+   <div >
     <TicketPix/>
    </div>
   )
